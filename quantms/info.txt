@@ -1,0 +1,2 @@
+20240103
+I think i ran run_quantms.sh to get the the .mzML files. The output files are not usable because of filtering and no percolator output so i need to use crux to parse the outputs myself, so I can plot the PEP plots.

@@ -1,0 +1,3 @@
+params {
+  -work-dir = '/hd2/tmp'
+}
