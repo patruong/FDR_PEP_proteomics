@@ -2,7 +2,7 @@ import os
 from snakemake import shell
 
 # Define the input FASTA file
-FASTA = "2023-11-01-decoys-reviewed-contam-UP000005640-UP000464024.fas"
+FASTA = "2024-01-05-reviewed-contam-UP000005640-UP000464024.fas"
 
 # Define the working directory
 WORKDIR = "reanalysis"
@@ -36,24 +36,26 @@ rule crux_bullseye:
 # Create a rule to run Crux tide-index
 rule crux_tide_index:
     input:
-        fasta="2023-11-01-decoys-reviewed-contam-UP000005640-UP000464024.fas"
+        fasta="2024-01-05-reviewed-contam-UP000005640-UP000464024.fas"
+    params:
+        index_name="tide-index"
     output:
         output_dir = os.path.join(WORKDIR, "tide-index")
     shell:
-        "crux tide-index {input.fasta} --output-dir {output.output_dir}"
+        "crux tide-index {input.fasta} {params.index_name} --output-dir {output.output_dir}"
 
 # Create a rule to run Crux tide-index
 rule crux_tide_search:
     input:
         mzML=os.path.join(WORKDIR, "mzML", "{iMZML}"),
-        fasta="2023-11-01-decoys-reviewed-contam-UP000005640-UP000464024.fas"
+        fasta="2024-01-05-reviewed-contam-UP000005640-UP000464024.fas"
     output:
         output_dir = os.path.join(WORKDIR, "tide-search", "{iMZML}")
     shell:
         "crux tide-search {input.mzML} {input.fasta} --output-dir {output.output_dir} --concat T"
 
 
-rule concatenate_search_results:
+rule concatenate_search_result:
     input:
         search_results=os.path.join(WORKDIR, "tide-search"),
     output:
@@ -72,8 +74,9 @@ rule fix_target_decoy_column:
 # Create a rule to run Crux tide-index
 rule crux_percolator:
     input:
-        #search_results=os.path.join(WORKDIR, "concatenated_search_results", "combined.tsv"), #maybe txt formatting matters....
-        search_results=os.path.join(WORKDIR, "tide-search", "NEG1.mzML","tide-search.txt"),
+        search_results=os.path.join("tmp", "concat.txt"), #manually curated NEG1.txt + NEG2.txt
+        #search_results=os.path.join(WORKDIR, "concatenated_search_results", "combined_fixed.tsv"), #maybe txt formatting matters....
+        #search_results=os.path.join(WORKDIR, "tide-search", "NEG1.mzML","tide-search.txt"),
     output:
         output_dir = os.path.join(WORKDIR, "percolator")
     shell:
